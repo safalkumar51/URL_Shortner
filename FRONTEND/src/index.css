@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+/* Custom styles — slightly darker theme */
+:root {
+  --primary-color: #e11d48;
+  --primary-hover: #be123c;
+  --accent-color: #f472b6;
+  --page-bg-from: #cbd5e1;
+  --page-bg-to: #94a3b8;
+  --surface: #e2e8f0;
+  --surface-elevated: #f1f5f9;
+  --border: #94a3b8;
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  background-color: #cbd5e1;
+  color: var(--text-primary);
+}
+
+/* Custom animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.page-bg {
+  background-image: linear-gradient(to bottom right, var(--page-bg-from), var(--page-bg-to));
+}
+
+.gradient-bg {
+  background-image: linear-gradient(120deg, #64748b 0%, #475569 100%);
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: all 0.2s ease-in-out;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.08);
+}
