@@ -25,12 +25,17 @@ const app = express();
 
 const port = process.env.PORT || 3000;
 
-app.use(cors({
-        origin: ['http://localhost:5173',"*"], 
-        credentials: true
-}));
+
 
 app.use(express.json({ limit: '10kb' }));
+
+
+app.use(cors({
+    origin: [
+        "https://url-shortner-d4xd7rqm9-safalkumar51s-projects.vercel.app/"
+    ],
+    credentials: true
+}));
 
 // Security middleware
 
