@@ -33,7 +33,7 @@ app.use(express.json({ limit: '10kb' }));
 app.use(cors({
     origin: [
         'http://localhost:5173',
-        'https://url-shortner-d4xd7rqm9-safalkumar51s-projects.vercel.app/'
+        'https://url-shortner-two-henna.vercel.app'
     ],
     credentials: true
 }));
