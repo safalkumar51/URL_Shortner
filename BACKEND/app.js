@@ -16,7 +16,7 @@ import { initializeCounter } from "./src/utils/initializeCounter.js";
 
 dotenv.config()
 
-const requiredEnv = ['MONGO_URI', 'JWT_SECRET', 'APP_URL', 'REDIS_HOST', 'REDIS_PORT']
+const requiredEnv = ['MONGO_URI', 'JWT_SECRET', 'APP_URL', 'REDIS_HOST', 'REDIS_PORT', 'FRONTEND_URL']
 const missing = requiredEnv.filter((k) => !process.env[k])
 if (missing.length > 0) {
     console.error('Missing required env vars:', missing.join(', '))
@@ -31,7 +31,6 @@ const allowedOrigins = [
     process.env.FRONTEND_URL,
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "https://url-shortner-two-henna.vercel.app"
 ].filter(Boolean);
 
 app.use(cors({

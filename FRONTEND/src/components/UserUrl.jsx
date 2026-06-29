@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getAllUserUrls } from '../api/user.api'
 
 const UserUrl = () => {
-  const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || window.location.origin
+  const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, '')
   const { data: urls, isLoading, isError, error } = useQuery({
     queryKey: ['userUrls'],
     queryFn: getAllUserUrls,
