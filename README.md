@@ -5,19 +5,21 @@ A full-stack URL shortening application with user authentication, custom slugs, 
 ## Features
 
 - Shorten long URLs with auto-generated or custom slugs
+- Auto-generated links now use a Redis-backed global counter and base62 encoding instead of NanoID
 - User registration and login with secure cookie-based sessions
 - Personal dashboard to create and manage links
 - Real-time click count tracking on redirect
 - Input validation on both client and server
 - Rate limiting and security middleware on the API
+- Containerized with Docker and Docker Compose
 
 ## Tech Stack
 
 | Layer | Technologies |
 |-------|--------------|
 | Frontend | React 19, Vite, Tailwind CSS v4, Redux Toolkit, TanStack Router, TanStack Query, Axios |
-| Backend | Node.js, Express 5, MongoDB, Mongoose, JWT, Zod, bcrypt, NanoID |
-| Deployment | Frontend on Vercel, backend API with CORS for production origin |
+| Backend | Node.js, Express 5, MongoDB, Mongoose, JWT, Zod, bcrypt, Redis, Base62 |
+| Deployment | Docker Compose for local services, frontend on Vercel, backend API with CORS for production origin |
 
 ## Project Structure
 
@@ -44,18 +46,47 @@ UrlShortner/
 │   │   └── validators/
 │   ├── app.js
 │   └── README.md
+├── docker-compose.yml
 └── README.md
 ```
 
 ## Quick Start
 
-### Prerequisites
+### Option 1: Docker Compose (recommended)
+
+Prerequisites:
+
+- Docker
+- Docker Compose
+
+Create the required environment files before starting the stack:
+
+- [BACKEND/.env](./BACKEND/.env) with MongoDB, JWT, Redis, and app URL values
+- [FRONTEND/.env](./FRONTEND/.env) with the Vite API URL
+
+From the project root, run:
+
+```bash
+docker compose up --build
+```
+
+Services:
+
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:3000
+- MongoDB: localhost:27017
+- Redis: localhost:6379
+
+### Option 2: Local development
+
+Prerequisites:
 
 - Node.js 18+
 - MongoDB (local or Atlas)
+- Redis
 - npm
 
-### 1. Backend
+#### 1. Backend
 
 ```bash
 cd BACKEND
@@ -70,6 +101,8 @@ JWT_SECRET=your_jwt_secret_here
 APP_URL=http://localhost:3000/
 PORT=3000
 NODE_ENV=development
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
 ```
 
 Start the server:
@@ -80,7 +113,7 @@ npm run dev
 
 API runs at `http://localhost:3000`.
 
-### 2. Frontend
+#### 2. Frontend
 
 ```bash
 cd FRONTEND
@@ -128,13 +161,13 @@ See [BACKEND/README.md](./BACKEND/README.md) for request/response details and va
 - **Frontend**: SPA with protected routes, Redux auth state, React Query for server data
 - **Backend**: Layered architecture (routes → controllers → services → DAO → models)
 - **Auth**: JWT stored in httpOnly cookies (1-hour expiry)
-- **Short URLs**: Custom slug or 7-character NanoID fallback; unique index on `short_url`
+- **Short URLs**: Custom slug or a Redis-backed base62 ID generated from a global counter; unique index on `short_url`
 
 ## Validation Summary
 
 - **Register**: name required, valid email, password min 6 characters
 - **Login**: valid email, password required
-- **Create URL**: valid URL; optional slug (3–30 chars, alphanumeric, `-`, `_`); empty slug triggers NanoID
+- **Create URL**: valid URL; optional slug (3–30 chars, alphanumeric, `-`, `_`); empty slug triggers a Redis-based short ID
 
 ## Scripts
 

@@ -20,7 +20,11 @@ const shortUrlSchema = new mongoose.Schema({
   user:{
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-  }
+  },
+  sequence: {
+    type: Number,
+    default: null,
+  },
 });
 
 const shortUrl = mongoose.model("shortUrl", shortUrlSchema);

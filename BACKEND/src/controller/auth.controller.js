@@ -4,6 +4,7 @@ import wrapAsync from "../utils/tryCatchWrapper.js"
 
 
 export const register_user = wrapAsync( async (req, res) => {
+    //console.log("register_user called");
     const {name, email, password} = req.body
     const {token,user} = await registerUser(name, email, password)
     //console.log(token);

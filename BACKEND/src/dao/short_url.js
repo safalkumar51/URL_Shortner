@@ -1,11 +1,12 @@
 import urlSchema from "../models/short_url.model.js";
 import { ConflictError } from "../utils/errorHandler.js";
 
-export const saveShortUrl = async (shortUrl, longUrl, userId) => {
+export const saveShortUrl = async (shortUrl, longUrl, userId, sequence = null) => {
     try{
         const newUrl = new urlSchema({
             full_url:longUrl,
-            short_url:shortUrl
+            short_url:shortUrl,
+            sequence: sequence ?? null
         })
         if(userId){
             newUrl.user = userId

@@ -3,6 +3,7 @@ import dotenv from "dotenv"
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import connectDB from "./src/config/monogo.config.js"
+import { redis } from "./src/config/redis.config.js"
 import short_url from "./src/routes/short_url.route.js"
 import user_routes from "./src/routes/user.routes.js"
 import auth_routes from "./src/routes/auth.routes.js"
@@ -11,10 +12,11 @@ import { errorHandler } from "./src/utils/errorHandler.js";
 import cors from "cors"
 import { attachUser } from "./src/utils/attachUser.js";
 import cookieParser from "cookie-parser"
+import { initializeCounter } from "./src/utils/initializeCounter.js";
 
 dotenv.config()
 
-const requiredEnv = ['MONGO_URI', 'JWT_SECRET', 'APP_URL']
+const requiredEnv = ['MONGO_URI', 'JWT_SECRET', 'APP_URL', 'REDIS_HOST', 'REDIS_PORT']
 const missing = requiredEnv.filter((k) => !process.env[k])
 if (missing.length > 0) {
     console.error('Missing required env vars:', missing.join(', '))
@@ -25,9 +27,15 @@ const app = express();
 
 const port = process.env.PORT || 3000;
 
+const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    "http://localhost:5173",
+    "http://127.0.0.1:5173"
+].filter(Boolean);
+
 app.use(cors({
-        origin: ['http://localhost:5173',"*"], 
-        credentials: true
+    origin: allowedOrigins,
+    credentials: true
 }));
 
 app.use(express.json({ limit: '10kb' }));
@@ -58,6 +66,8 @@ app.use(errorHandler)
 
 app.listen(port, '0.0.0.0', async () => {
     await connectDB()
+    await redis.connect();
+    await initializeCounter();
     console.log("Server listening at port number: " + port);
 })
 

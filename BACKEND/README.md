@@ -1,6 +1,6 @@
 # URL Shortener — Backend
 
-Express REST API for the URL Shortener project. Handles authentication, URL shortening, redirects with click tracking, and user link management.
+Express REST API for the URL Shortener project. Handles authentication, URL shortening, redirects with click tracking, user link management, and Redis-backed short ID generation.
 
 ## Tech Stack
 
@@ -9,7 +9,8 @@ Express REST API for the URL Shortener project. Handles authentication, URL shor
 - **JWT** — session tokens in httpOnly cookies
 - **bcryptjs** — password hashing
 - **Zod** — request body validation
-- **NanoID** — random short URL generation
+- **Redis** — global short URL counter and atomic ID generation
+- **Base62 encoding** — compact short URL IDs
 - **express-rate-limit** — API rate limiting
 - **cookie-parser** + **CORS** — cross-origin auth
 
@@ -19,6 +20,7 @@ Express REST API for the URL Shortener project. Handles authentication, URL shor
 
 - Node.js 18+
 - MongoDB (local instance or MongoDB Atlas)
+- Redis
 
 ### Installation
 
@@ -37,6 +39,8 @@ JWT_SECRET=your_strong_secret_key
 APP_URL=http://localhost:3000/
 PORT=3000
 NODE_ENV=development
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
 ```
 
 | Variable | Required | Description |
@@ -46,6 +50,8 @@ NODE_ENV=development
 | `APP_URL` | Yes | Base URL prepended to short links in API responses |
 | `PORT` | No | Server port (default: `3000`) |
 | `NODE_ENV` | No | `production` enables secure cookies |
+| `REDIS_HOST` | No | Redis host (default: `127.0.0.1`) |
+| `REDIS_PORT` | No | Redis port (default: `6379`) |
 
 The app exits on startup if required env vars are missing.
 
@@ -63,6 +69,21 @@ Uses nodemon for auto-restart.
 npm start
 ```
 
+### Docker Compose
+
+From the project root, you can start the full stack with Docker:
+
+```bash
+docker compose up --build
+```
+
+This runs:
+
+- backend on port `3000`
+- frontend on port `5173`
+- MongoDB on port `27017`
+- Redis on port `6379`
+
 ## Project Structure
 
 ```
@@ -71,7 +92,8 @@ BACKEND/
 └── src/
     ├── config/
     │   ├── config.js      # Cookie options
-    │   └── monogo.config.js
+    │   ├── monogo.config.js
+    │   └── redis.config.js
     ├── controller/        # Request handlers
     ├── dao/               # Database access
     ├── middleware/
@@ -80,7 +102,7 @@ BACKEND/
     ├── models/            # Mongoose schemas
     ├── routes/            # Route definitions
     ├── services/          # Business logic
-    ├── utils/             # JWT, NanoID, errors
+    ├── utils/             # JWT, Base62, error handling
     └── validators/        # Zod schemas
 ```
 
@@ -168,11 +190,13 @@ Create a short URL. Requires authentication.
 **Validation:**
 
 - `url` — required, valid URL
-- `slug` — optional; if omitted or empty, a 7-character NanoID is generated
+- `slug` — optional; if omitted or empty, the backend generates a short ID from a Redis global counter and base62 encoding
 - If provided: 3–30 characters, `[A-Za-z0-9_-]` only
 
 **Response:** `200` — `{ shortUrl: "http://localhost:3000/abc1234" }`  
 **Errors:** `400` validation, `401` unauthorized, conflict if custom slug exists
+
+> On startup, the backend initializes the Redis counter from the highest stored `sequence` value if the counter does not already exist.
 
 ---
 
