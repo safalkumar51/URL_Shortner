@@ -42,6 +42,10 @@ app.use(cors({
 
 // Security middleware
 
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+app.use(cookieParser())
+
 // Body size limits
 
 const apiLimiter = rateLimit({
@@ -51,7 +55,6 @@ const apiLimiter = rateLimit({
     legacyHeaders: false,
 })
 app.use(apiLimiter)
-app.use(cookieParser())
 
 //app.use(attachUser)
 
