@@ -30,15 +30,14 @@ const port = process.env.PORT || 3000;
 const allowedOrigins = [
     process.env.FRONTEND_URL,
     "http://localhost:5173",
-    "http://127.0.0.1:5173"
+    "http://127.0.0.1:5173",
+    "https://url-shortner-two-henna.vercel.app"
 ].filter(Boolean);
 
 app.use(cors({
     origin: allowedOrigins,
     credentials: true
 }));
-
-app.use(express.json({ limit: '10kb' }));
 
 // Security middleware
 
